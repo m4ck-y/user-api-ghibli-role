@@ -26,14 +26,34 @@ class UserService:
         user_data.password = hash_password(user_data.password)
 
         created_user = self.user_repo.create(user_data, role)
-        return UserResponse.model_validate(created_user)
+        return UserResponse(
+            id=created_user.id,
+            name=created_user.name,
+            email=created_user.email,
+            role_name=created_user.role.name
+        )
     def get_user(self, user_id: str) -> Optional[UserResponse]:
         user = self.user_repo.get(user_id)
-        return UserResponse.model_validate(user) if user else None
+        if not user:
+            return None
+        return UserResponse(
+            id=user.id,
+            name=user.name,
+            email=user.email,
+            role_name=user.role.name
+        )
 
     def get_all_users(self) -> List[UserResponse]:
         users = self.user_repo.get_all()
-        return [UserResponse.model_validate(user) for user in users]
+        return [
+            UserResponse(
+                id=user.id,
+                name=user.name,
+                email=user.email,
+                role_name=user.role.name
+            )
+            for user in users
+        ]
 
     def update_user(self, user_id: str, user_data: UserUpdate) -> Optional[UserResponse]:
         user = self.user_repo.get(user_id)
@@ -57,7 +77,12 @@ class UserService:
         )
 
         updated = self.user_repo.update(updated_user)
-        return UserResponse.model_validate(updated)
+        return UserResponse(
+            id=updated.id,
+            name=updated.name,
+            email=updated.email,
+            role_name=updated.role.name
+        )
 
     def patch_user(self, user_id: str, patch_data: UserPatch) -> Optional[UserResponse]:
         user = self.user_repo.get(user_id)
@@ -82,7 +107,12 @@ class UserService:
         )
 
         updated = self.user_repo.update(patched_user)
-        return UserResponse.model_validate(updated)
+        return UserResponse(
+            id=updated.id,
+            name=updated.name,
+            email=updated.email,
+            role_name=updated.role.name
+        )
 
     def delete_user(self, user_id: str, current_user: User) -> bool:
         user = self.user_repo.get(user_id)
