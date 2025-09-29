@@ -1,4 +1,4 @@
-from pydantic import BaseModel, EmailStr
+from pydantic import BaseModel, EmailStr, ConfigDict
 from typing import Optional
 from app.domain.enums.role_type import RoleType
 
@@ -25,11 +25,10 @@ class UserPatch(BaseModel):
 
 
 class UserResponse(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
     id: str
     name: str
     email: EmailStr
     role_name: RoleType
-
-    class Config:
-        from_attributes = True
 
