@@ -5,7 +5,7 @@ from app.domain.models.role import Role
 
 @dataclass
 class User:
-    id: Optional[str]
+    id: Optional[int]
     name: str
     email: str
     password_hash: str

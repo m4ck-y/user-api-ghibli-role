@@ -26,14 +26,14 @@ def get_all_users(service: UserService = Depends(get_user_service)):
     return service.get_all_users()
 
 @router.get("/users/{user_id}", response_model=UserResponse)
-def get_user(user_id: str, service: UserService = Depends(get_user_service)):
+def get_user(user_id: int, service: UserService = Depends(get_user_service)):
     user = service.get_user(user_id)
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
     return user
 
 @router.put("/users/{user_id}", response_model=UserResponse)
-def update_user(user_id: str, user_data: UserUpdate, service: UserService = Depends(get_user_service)):
+def update_user(user_id: int, user_data: UserUpdate, service: UserService = Depends(get_user_service)):
     try:
         updated = service.update_user(user_id, user_data)
         if not updated:
@@ -43,7 +43,7 @@ def update_user(user_id: str, user_data: UserUpdate, service: UserService = Depe
         raise HTTPException(status_code=400, detail=str(e))
 
 @router.patch("/users/{user_id}", response_model=UserResponse)
-def patch_user(user_id: str, patch_data: UserPatch, service: UserService = Depends(get_user_service)):
+def patch_user(user_id: int, patch_data: UserPatch, service: UserService = Depends(get_user_service)):
     try:
         patched = service.patch_user(user_id, patch_data)
         if not patched:
@@ -53,7 +53,7 @@ def patch_user(user_id: str, patch_data: UserPatch, service: UserService = Depen
         raise HTTPException(status_code=400, detail=str(e))
 
 @router.delete("/users/{user_id}")
-def delete_user(user_id: str, service: UserService = Depends(get_user_service)):
+def delete_user(user_id: int, service: UserService = Depends(get_user_service)):
     try:
         success = service.delete_user(user_id, None)  # No current_user for now
         if not success:

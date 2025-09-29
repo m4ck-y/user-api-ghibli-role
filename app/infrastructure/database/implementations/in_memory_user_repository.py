@@ -6,6 +6,8 @@ from app.domain.schemas.user import UserCreate
 
 
 class InMemoryUserRepository(UserRepository):
+    _id_counter = 1
+
     def __init__(self):
         self._users: List[User] = []
 
@@ -18,13 +20,14 @@ class InMemoryUserRepository(UserRepository):
             role=role
         )
 
-        user_id = str(len(self._users) + 1)
+        user_id = InMemoryUserRepository._id_counter
+        InMemoryUserRepository._id_counter += 1
         user.id = user_id
 
         self._users.append(user)
         return user
 
-    def get(self, user_id: str) -> Optional[User]:
+    def get(self, user_id: int) -> Optional[User]:
         for user in self._users:
             if user.id == user_id:
                 return user
@@ -50,7 +53,7 @@ class InMemoryUserRepository(UserRepository):
                 return user
         raise ValueError(f"User with id {user.id} not found")
 
-    def patch(self, user_id: str, patch_data) -> Optional[User]:
+    def patch(self, user_id: int, patch_data) -> Optional[User]:
         user = self.get(user_id)
         if not user:
             return None
@@ -68,7 +71,7 @@ class InMemoryUserRepository(UserRepository):
 
         return user
 
-    def delete(self, user_id: str) -> None:
+    def delete(self, user_id: int) -> None:
         for i, user in enumerate(self._users):
             if user.id == user_id:
                 self._users.pop(i)

@@ -10,7 +10,7 @@ class UserRepository(ABC):
         pass
 
     @abstractmethod
-    def get(self, user_id: str) -> Optional[User]:
+    def get(self, user_id: int) -> Optional[User]:
         pass
 
     @abstractmethod
@@ -26,9 +26,9 @@ class UserRepository(ABC):
         pass
 
     @abstractmethod
-    def patch(self, user_id: str, patch_data: UserPatch) -> Optional[User]:
+    def patch(self, user_id: int, patch_data: UserPatch) -> Optional[User]:
         pass
 
     @abstractmethod
-    def delete(self, user_id: str) -> None:
+    def delete(self, user_id: int) -> None:
         pass
