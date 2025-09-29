@@ -10,6 +10,25 @@ class InMemoryUserRepository(UserRepository):
 
     def __init__(self):
         self._users: List[User] = []
+        self._initialize_admin()
+
+    def _initialize_admin(self):
+        from app.domain.models.role import Role
+        from app.application.utils import hash_password
+        from app.infrastructure.config.settings import settings
+
+        admin_role = Role(id=1, name="admin", ghibli_endpoint="")
+
+        admin_user = User(
+            id=1,
+            name=settings.admin_name,
+            email=settings.admin_email,
+            password_hash=hash_password(settings.admin_password),
+            role=admin_role
+        )
+
+        self._users.append(admin_user)
+        InMemoryUserRepository._id_counter = 2
 
     def create(self, user_data: UserCreate, role: Role) -> User:
         user = User(

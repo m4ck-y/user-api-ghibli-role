@@ -1,14 +1,16 @@
 from fastapi import APIRouter, Depends
 from typing import List
+from sqlalchemy.ext.asyncio import AsyncSession
 from app.domain.schemas.role import RoleResponse
-from app.infrastructure.database.implementations.in_memory_role_repository import InMemoryRoleRepository
+from app.infrastructure.database.implementations.sqlalchemy_role_repository import SQLAlchemyRoleRepository
+from app.infrastructure.database.session import get_db
 
 router = APIRouter()
 
-def get_role_repository():
-    return InMemoryRoleRepository()
+def get_role_repository(session: AsyncSession = Depends(get_db)):
+    return SQLAlchemyRoleRepository(session)
 
 @router.get("/roles", response_model=List[RoleResponse])
-def get_all_roles(repo = Depends(get_role_repository)):
-    roles = repo.get_all()
-    return [RoleResponse.model_validate(role) for role in roles]
+async def get_all_roles(repo = Depends(get_role_repository)):
+    roles = await repo.get_all()
+    return [RoleResponse(id=role.id, name=role.name, ghibli_endpoint=role.ghibli_endpoint) for role in roles]

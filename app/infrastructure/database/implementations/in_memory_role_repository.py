@@ -5,9 +5,8 @@ from app.domain.models.role import Role
 
 class InMemoryRoleRepository(RoleRepository):
     def __init__(self):
-        # Initialize with fixed roles
         self._roles = [
-            Role(id=1, name="admin", ghibli_endpoint="/films"),  # Admin can access all
+            Role(id=1, name="admin", ghibli_endpoint=""),
             Role(id=2, name="films", ghibli_endpoint="/films"),
             Role(id=3, name="people", ghibli_endpoint="/people"),
             Role(id=4, name="locations", ghibli_endpoint="/locations"),

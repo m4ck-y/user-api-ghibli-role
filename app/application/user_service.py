@@ -14,26 +14,26 @@ class UserService:
         self.user_repo = user_repo
         self.role_repo = role_repo
 
-    def create_user(self, user_data: UserCreate) -> UserResponse:
-        existing_user = self.user_repo.find_by_email(user_data.email)
+    async def create_user(self, user_data: UserCreate) -> UserResponse:
+        existing_user = await self.user_repo.find_by_email(user_data.email)
         if existing_user:
             raise ValueError("Email already registered")
 
-        role = self.role_repo.get_by_name(user_data.role_name.value)
+        role = await self.role_repo.get_by_name(user_data.role_name.value)
         if not role:
             raise ValueError(f"Role {user_data.role_name} not found")
 
         user_data.password = hash_password(user_data.password)
 
-        created_user = self.user_repo.create(user_data, role)
+        created_user = await self.user_repo.create(user_data, role)
         return UserResponse(
             id=created_user.id,
             name=created_user.name,
             email=created_user.email,
             role_name=created_user.role.name
         )
-    def get_user(self, user_id: str) -> Optional[UserResponse]:
-        user = self.user_repo.get(user_id)
+    async def get_user(self, user_id: int) -> Optional[UserResponse]:
+        user = await self.user_repo.get(user_id)
         if not user:
             return None
         return UserResponse(
@@ -43,8 +43,8 @@ class UserService:
             role_name=user.role.name
         )
 
-    def get_all_users(self) -> List[UserResponse]:
-        users = self.user_repo.get_all()
+    async def get_all_users(self) -> List[UserResponse]:
+        users = await self.user_repo.get_all()
         return [
             UserResponse(
                 id=user.id,
@@ -55,14 +55,14 @@ class UserService:
             for user in users
         ]
 
-    def update_user(self, user_id: str, user_data: UserUpdate) -> Optional[UserResponse]:
-        user = self.user_repo.get(user_id)
+    async def update_user(self, user_id: int, user_data: UserUpdate) -> Optional[UserResponse]:
+        user = await self.user_repo.get(user_id)
         if not user:
             return None
 
         role = user.role
         if user_data.role_name:
-            role = self.role_repo.get_by_name(user_data.role_name.value)
+            role = await self.role_repo.get_by_name(user_data.role_name.value)
             if not role:
                 raise ValueError(f"Role {user_data.role_name} not found")
 
@@ -76,7 +76,7 @@ class UserService:
             role=role
         )
 
-        updated = self.user_repo.update(updated_user)
+        updated = await self.user_repo.update(updated_user)
         return UserResponse(
             id=updated.id,
             name=updated.name,
@@ -84,8 +84,8 @@ class UserService:
             role_name=updated.role.name
         )
 
-    def patch_user(self, user_id: str, patch_data: UserPatch) -> Optional[UserResponse]:
-        user = self.user_repo.get(user_id)
+    async def patch_user(self, user_id: int, patch_data: UserPatch) -> Optional[UserResponse]:
+        user = await self.user_repo.get(user_id)
         if not user:
             return None
 
@@ -94,7 +94,7 @@ class UserService:
         password_hash = hash_password(patch_data.password) if patch_data.password is not None else user.password_hash
         role = user.role
         if patch_data.role_name:
-            role = self.role_repo.get_by_name(patch_data.role_name.value)
+            role = await self.role_repo.get_by_name(patch_data.role_name.value)
             if not role:
                 raise ValueError(f"Role {patch_data.role_name} not found")
 
@@ -106,7 +106,7 @@ class UserService:
             role=role
         )
 
-        updated = self.user_repo.update(patched_user)
+        updated = await self.user_repo.update(patched_user)
         return UserResponse(
             id=updated.id,
             name=updated.name,
@@ -114,13 +114,13 @@ class UserService:
             role_name=updated.role.name
         )
 
-    def delete_user(self, user_id: str, current_user: User) -> bool:
-        user = self.user_repo.get(user_id)
+    async def delete_user(self, user_id: int, current_user: Optional[User]) -> bool:
+        user = await self.user_repo.get(user_id)
         if not user:
             return False
 
-        if user.id == current_user.id and current_user.role.name == "admin":
+        if current_user and user.id == current_user.id and current_user.role.name == "admin":
             raise ValueError("An admin user cannot delete their own account")
 
-        self.user_repo.delete(user_id)
+        await self.user_repo.delete(user_id)
         return True

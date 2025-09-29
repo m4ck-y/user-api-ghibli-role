@@ -12,5 +12,4 @@ class User:
     role: Role
 
     def can_delete_self(self) -> bool:
-        """Admin cannot delete themselves"""
         return self.role.name != "admin"

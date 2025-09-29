@@ -1,41 +1,41 @@
 from fastapi import APIRouter, HTTPException, Depends
 from typing import List
+from sqlalchemy.ext.asyncio import AsyncSession
 from app.domain.schemas.user import UserCreate, UserUpdate, UserPatch, UserResponse
 from app.application.user_service import UserService
-from app.infrastructure.database.implementations.in_memory_user_repository import InMemoryUserRepository
-from app.infrastructure.database.implementations.in_memory_role_repository import InMemoryRoleRepository
+from app.infrastructure.database.implementations.sqlalchemy_user_repository import SQLAlchemyUserRepository
+from app.infrastructure.database.implementations.sqlalchemy_role_repository import SQLAlchemyRoleRepository
+from app.infrastructure.database.session import get_db
 
 router = APIRouter()
 
-# Global instances for in-memory persistence
-_user_repo = InMemoryUserRepository()
-_role_repo = InMemoryRoleRepository()
-
-def get_user_service():
-    return UserService(_user_repo, _role_repo)
+def get_user_service(session: AsyncSession = Depends(get_db)):
+    user_repo = SQLAlchemyUserRepository(session)
+    role_repo = SQLAlchemyRoleRepository(session)
+    return UserService(user_repo, role_repo)
 
 @router.post("/users", response_model=UserResponse)
-def create_user(user_data: UserCreate, service: UserService = Depends(get_user_service)):
+async def create_user(user_data: UserCreate, service: UserService = Depends(get_user_service)):
     try:
-        return service.create_user(user_data)
+        return await service.create_user(user_data)
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
 
 @router.get("/users", response_model=List[UserResponse])
-def get_all_users(service: UserService = Depends(get_user_service)):
-    return service.get_all_users()
+async def get_all_users(service: UserService = Depends(get_user_service)):
+    return await service.get_all_users()
 
 @router.get("/users/{user_id}", response_model=UserResponse)
-def get_user(user_id: int, service: UserService = Depends(get_user_service)):
-    user = service.get_user(user_id)
+async def get_user(user_id: int, service: UserService = Depends(get_user_service)):
+    user = await service.get_user(user_id)
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
     return user
 
 @router.put("/users/{user_id}", response_model=UserResponse)
-def update_user(user_id: int, user_data: UserUpdate, service: UserService = Depends(get_user_service)):
+async def update_user(user_id: int, user_data: UserUpdate, service: UserService = Depends(get_user_service)):
     try:
-        updated = service.update_user(user_id, user_data)
+        updated = await service.update_user(user_id, user_data)
         if not updated:
             raise HTTPException(status_code=404, detail="User not found")
         return updated
@@ -43,9 +43,9 @@ def update_user(user_id: int, user_data: UserUpdate, service: UserService = Depe
         raise HTTPException(status_code=400, detail=str(e))
 
 @router.patch("/users/{user_id}", response_model=UserResponse)
-def patch_user(user_id: int, patch_data: UserPatch, service: UserService = Depends(get_user_service)):
+async def patch_user(user_id: int, patch_data: UserPatch, service: UserService = Depends(get_user_service)):
     try:
-        patched = service.patch_user(user_id, patch_data)
+        patched = await service.patch_user(user_id, patch_data)
         if not patched:
             raise HTTPException(status_code=404, detail="User not found")
         return patched
@@ -53,9 +53,9 @@ def patch_user(user_id: int, patch_data: UserPatch, service: UserService = Depen
         raise HTTPException(status_code=400, detail=str(e))
 
 @router.delete("/users/{user_id}")
-def delete_user(user_id: int, service: UserService = Depends(get_user_service)):
+async def delete_user(user_id: int, service: UserService = Depends(get_user_service)):
     try:
-        success = service.delete_user(user_id, None)  # No current_user for now
+        success = await service.delete_user(user_id, None)  # No current_user for now
         if not success:
             raise HTTPException(status_code=404, detail="User not found")
         return {"message": "User deleted successfully"}
