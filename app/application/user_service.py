@@ -15,26 +15,18 @@ class UserService:
         self.role_repo = role_repo
 
     def create_user(self, user_data: UserCreate) -> UserResponse:
+        existing_user = self.user_repo.find_by_email(user_data.email)
+        if existing_user:
+            raise ValueError("Email already registered")
 
         role = self.role_repo.get_by_name(user_data.role_name.value)
         if not role:
             raise ValueError(f"Role {user_data.role_name} not found")
 
-        existing_user = self.user_repo.find_by_email(user_data.email)
-        if existing_user:
-            raise ValueError("Email already registered")
+        user_data.password = hash_password(user_data.password)
 
-        user = User(
-            id=str(uuid.uuid4()),
-            name=user_data.name,
-            email=user_data.email,
-            password_hash=hash_password(user_data.password),
-            role=role
-        )
-
-        created_user = self.user_repo.create(user)
+        created_user = self.user_repo.create(user_data, role)
         return UserResponse.model_validate(created_user)
-
     def get_user(self, user_id: str) -> Optional[UserResponse]:
         user = self.user_repo.get(user_id)
         return UserResponse.model_validate(user) if user else None
@@ -50,10 +42,9 @@ class UserService:
 
         role = user.role
         if user_data.role_name:
-            new_role = self.role_repo.get_by_name(user_data.role_name.value)
-            if not new_role:
+            role = self.role_repo.get_by_name(user_data.role_name.value)
+            if not role:
                 raise ValueError(f"Role {user_data.role_name} not found")
-            role = new_role
 
         password_hash = hash_password(user_data.password) if user_data.password else user.password_hash
 
@@ -78,10 +69,9 @@ class UserService:
         password_hash = hash_password(patch_data.password) if patch_data.password is not None else user.password_hash
         role = user.role
         if patch_data.role_name:
-            new_role = self.role_repo.get_by_name(patch_data.role_name.value)
-            if not new_role:
+            role = self.role_repo.get_by_name(patch_data.role_name.value)
+            if not role:
                 raise ValueError(f"Role {patch_data.role_name} not found")
-            role = new_role
 
         patched_user = User(
             id=user.id,
@@ -91,8 +81,8 @@ class UserService:
             role=role
         )
 
-        updated = self.user_repo.patch(user_id, patch_data)
-        return UserResponse.model_validate(updated) if updated else None
+        updated = self.user_repo.update(patched_user)
+        return UserResponse.model_validate(updated)
 
     def delete_user(self, user_id: str, current_user: User) -> bool:
         user = self.user_repo.get(user_id)

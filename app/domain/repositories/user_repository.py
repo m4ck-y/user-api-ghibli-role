@@ -1,12 +1,12 @@
 from abc import ABC, abstractmethod
 from typing import List, Optional
-from app.domain.models.user import User
-from app.domain.schemas.user import UserPatch
+from app.domain.models.user import User, Role
+from app.domain.schemas.user import UserCreate, UserPatch
 
 
 class UserRepository(ABC):
     @abstractmethod
-    def create(self, user: User) -> User:
+    def create(self, user_data: UserCreate, role: Role) -> User:
         pass
 
     @abstractmethod
