@@ -16,7 +16,7 @@ def get_user_service(session: AsyncSession = Depends(get_db)):
     role_repo = SQLAlchemyRoleRepository(session)
     return UserService(user_repo, role_repo)
 
-@router.post("/users", response_model=UserResponse)
+@router.post("/users", response_model=UserResponse, tags=["public", "admin"])
 async def create_user(
     user_data: UserCreate,
     service: UserService = Depends(get_user_service),
@@ -29,7 +29,7 @@ async def create_user(
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
 
-@router.get("/users/me", response_model=UserResponse)
+@router.get("/users/me", response_model=UserResponse, tags=["admin", "normal_user"])
 async def get_current_user_info(current_user: User = Depends(get_current_user)):
     return UserResponse(
         id=current_user.id,
@@ -38,7 +38,7 @@ async def get_current_user_info(current_user: User = Depends(get_current_user)):
         role_name=current_user.role.name
     )
 
-@router.put("/users/me", response_model=UserResponse)
+@router.put("/users/me", response_model=UserResponse, tags=["normal_user"])
 async def update_current_user(
     user_data: UserUpdate,
     service: UserService = Depends(get_user_service),
@@ -52,7 +52,7 @@ async def update_current_user(
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
 
-@router.patch("/users/me", response_model=UserResponse)
+@router.patch("/users/me", response_model=UserResponse, tags=["normal_user"])
 async def patch_current_user(
     patch_data: UserPatch,
     service: UserService = Depends(get_user_service),
@@ -66,7 +66,7 @@ async def patch_current_user(
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
 
-@router.delete("/users/me")
+@router.delete("/users/me", tags=["normal_user"])
 async def delete_current_user(
     service: UserService = Depends(get_user_service),
     current_user: User = Depends(get_current_normal_user)
@@ -79,14 +79,14 @@ async def delete_current_user(
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
 
-@router.get("/users", response_model=List[UserResponse])
+@router.get("/users", response_model=List[UserResponse], tags=["admin"])
 async def get_all_users(
     service: UserService = Depends(get_user_service),
     current_user: User = Depends(get_current_admin_user)
 ):
     return await service.get_all_users()
 
-@router.get("/users/{user_id}", response_model=UserResponse)
+@router.get("/users/{user_id}", response_model=UserResponse, tags=["admin"])
 async def get_user(
     user_id: int,
     service: UserService = Depends(get_user_service),
@@ -97,7 +97,7 @@ async def get_user(
         raise HTTPException(status_code=404, detail="User not found")
     return user
 
-@router.put("/users/{user_id}", response_model=UserResponse)
+@router.put("/users/{user_id}", response_model=UserResponse, tags=["admin"])
 async def update_user(
     user_id: int,
     user_data: UserUpdate,
@@ -112,7 +112,7 @@ async def update_user(
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
 
-@router.patch("/users/{user_id}", response_model=UserResponse)
+@router.patch("/users/{user_id}", response_model=UserResponse, tags=["admin"])
 async def patch_user(
     user_id: int,
     patch_data: UserPatch,
@@ -127,7 +127,7 @@ async def patch_user(
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
 
-@router.delete("/users/{user_id}")
+@router.delete("/users/{user_id}", tags=["admin"])
 async def delete_user(
     user_id: int,
     service: UserService = Depends(get_user_service),

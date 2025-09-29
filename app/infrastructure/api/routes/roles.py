@@ -11,7 +11,7 @@ router = APIRouter()
 def get_role_repository(session: AsyncSession = Depends(get_db)):
     return SQLAlchemyRoleRepository(session)
 
-@router.get("/roles", response_model=List[RoleResponse])
+@router.get("/roles", response_model=List[RoleResponse], tags=["admin"])
 async def get_all_roles(
     repo = Depends(get_role_repository),
     current_user = Depends(get_current_admin_user)

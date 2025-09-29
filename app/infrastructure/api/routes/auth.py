@@ -14,6 +14,6 @@ def get_auth_service(session: AsyncSession = Depends(get_db)):
     return AuthService(user_repo)
 
 
-@router.post("/auth/login", response_model=TokenResponse)
+@router.post("/auth/login", response_model=TokenResponse, tags=["public"])
 async def login(form_data: OAuth2PasswordRequestForm = Depends(), auth_service: AuthService = Depends(get_auth_service)):
     return await auth_service.authenticate_user(form_data)

@@ -9,7 +9,7 @@ router = APIRouter()
 def get_ghibli_service():
     return GhibliService()
 
-@router.get("/ghibli-api/resources/")
+@router.get("/ghibli-api/resources/", tags=["normal_user"])
 async def get_all_resources(
     service: GhibliService = Depends(get_ghibli_service),
     current_user: User = Depends(get_current_user)
@@ -21,7 +21,7 @@ async def get_all_resources(
     except Exception as e:
         raise HTTPException(status_code=500, detail="Error fetching Ghibli resources")
 
-@router.get("/ghibli-api/resources/{resource_id}/")
+@router.get("/ghibli-api/resources/{resource_id}/", tags=["normal_user"])
 async def get_resource_by_id(
     resource_id: str,
     service: GhibliService = Depends(get_ghibli_service),
