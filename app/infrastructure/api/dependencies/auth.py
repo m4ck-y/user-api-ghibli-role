@@ -11,7 +11,6 @@ from app.domain.schemas.auth import TokenData
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="auth/login")
 
 async def get_current_user_optional(token: str = Depends(oauth2_scheme), session: AsyncSession = Depends(get_db)) -> Optional[User]:
-    """Obtiene el usuario actual si el token es válido, o None si no."""
     try:
         credentials_exception = HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
@@ -33,7 +32,6 @@ async def get_current_user(
     token: str = Depends(oauth2_scheme),
     session: AsyncSession = Depends(get_db)
 ) -> User:
-    """Verifica el token JWT y obtiene el usuario autenticado desde la base de datos."""
     credentials_exception = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
         detail="Could not validate credentials",
@@ -49,7 +47,6 @@ async def get_current_user(
 
 
 async def get_current_admin_user(current_user: User = Depends(get_current_user)) -> User:
-    """Verifica que el usuario actual tenga rol admin, de lo contrario lanza error 403."""
     if current_user.role.name != "admin":
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
@@ -59,7 +56,6 @@ async def get_current_admin_user(current_user: User = Depends(get_current_user))
 
 
 async def get_current_normal_user(current_user: User = Depends(get_current_user)) -> User:
-    """Bloquea el acceso a usuarios admin, permitiendo solo usuarios normales."""
     if current_user.role.name == "admin":
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,

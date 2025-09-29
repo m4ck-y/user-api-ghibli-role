@@ -15,4 +15,5 @@ dependencies = [
     "pyjwt>=2.0.0",
     "python-multipart>=0.0.20",
     "httpx>=0.25.0",
+    "slowapi>=0.1.9",
 ]

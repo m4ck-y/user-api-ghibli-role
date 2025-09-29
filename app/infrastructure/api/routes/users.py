@@ -1,5 +1,7 @@
-from fastapi import APIRouter, HTTPException, Depends
+from fastapi import APIRouter, HTTPException, Depends, Request
 from typing import List, Optional
+from slowapi import Limiter
+from slowapi.util import get_remote_address
 from sqlalchemy.ext.asyncio import AsyncSession
 from app.domain.schemas.user import UserCreate, UserUpdate, UserPatch, UserResponse
 from app.application.user_service import UserService
@@ -11,13 +13,31 @@ from app.domain.models.user import User
 
 router = APIRouter()
 
+registro_limiter = Limiter(key_func=lambda request: f"{get_remote_address(request)}:{request.headers.get('User-Agent', '')}")
+
+def user_key_func(request: Request) -> str:
+    from app.infrastructure.api.dependencies.auth import verify_token
+    from fastapi import HTTPException
+    token = request.headers.get("Authorization", "").replace("Bearer ", "")
+    if not token:
+        return get_remote_address(request)
+    try:
+        payload = verify_token(token, lambda: HTTPException(status_code=401, detail="Invalid token"))
+        return str(payload.user_id)
+    except:
+        return get_remote_address(request)
+
+user_limiter = Limiter(key_func=user_key_func)
+
 def get_user_service(session: AsyncSession = Depends(get_db)):
     user_repo = SQLAlchemyUserRepository(session)
     role_repo = SQLAlchemyRoleRepository(session)
     return UserService(user_repo, role_repo)
 
 @router.post("/users", response_model=UserResponse, tags=["public", "admin"])
+@registro_limiter.limit("10/minute")
 async def create_user(
+    request: Request,
     user_data: UserCreate,
     service: UserService = Depends(get_user_service),
     current_user: Optional[User] = Depends(get_current_user_optional)
@@ -30,7 +50,8 @@ async def create_user(
         raise HTTPException(status_code=400, detail=str(e))
 
 @router.get("/users/me", response_model=UserResponse, tags=["admin", "normal_user"])
-async def get_current_user_info(current_user: User = Depends(get_current_user)):
+@user_limiter.limit("10/minute")
+async def get_current_user_info(request: Request, current_user: User = Depends(get_current_user)):
     return UserResponse(
         id=current_user.id,
         name=current_user.name,
@@ -39,7 +60,9 @@ async def get_current_user_info(current_user: User = Depends(get_current_user)):
     )
 
 @router.put("/users/me", response_model=UserResponse, tags=["normal_user"])
+@user_limiter.limit("10/minute")
 async def update_current_user(
+    request: Request,
     user_data: UserUpdate,
     service: UserService = Depends(get_user_service),
     current_user: User = Depends(get_current_normal_user)
@@ -53,7 +76,9 @@ async def update_current_user(
         raise HTTPException(status_code=400, detail=str(e))
 
 @router.patch("/users/me", response_model=UserResponse, tags=["normal_user"])
+@user_limiter.limit("10/minute")
 async def patch_current_user(
+    request: Request,
     patch_data: UserPatch,
     service: UserService = Depends(get_user_service),
     current_user: User = Depends(get_current_normal_user)
@@ -67,7 +92,9 @@ async def patch_current_user(
         raise HTTPException(status_code=400, detail=str(e))
 
 @router.delete("/users/me", tags=["normal_user"])
+@user_limiter.limit("10/minute")
 async def delete_current_user(
+    request: Request,
     service: UserService = Depends(get_user_service),
     current_user: User = Depends(get_current_normal_user)
 ):
@@ -80,14 +107,18 @@ async def delete_current_user(
         raise HTTPException(status_code=400, detail=str(e))
 
 @router.get("/users", response_model=List[UserResponse], tags=["admin"])
+@user_limiter.limit("10/minute")
 async def get_all_users(
+    request: Request,
     service: UserService = Depends(get_user_service),
     current_user: User = Depends(get_current_admin_user)
 ):
     return await service.get_all_users()
 
 @router.get("/users/{user_id}", response_model=UserResponse, tags=["admin"])
+@user_limiter.limit("10/minute")
 async def get_user(
+    request: Request,
     user_id: int,
     service: UserService = Depends(get_user_service),
     current_user: User = Depends(get_current_admin_user)
@@ -98,7 +129,9 @@ async def get_user(
     return user
 
 @router.put("/users/{user_id}", response_model=UserResponse, tags=["admin"])
+@user_limiter.limit("10/minute")
 async def update_user(
+    request: Request,
     user_id: int,
     user_data: UserUpdate,
     service: UserService = Depends(get_user_service),
@@ -113,7 +146,9 @@ async def update_user(
         raise HTTPException(status_code=400, detail=str(e))
 
 @router.patch("/users/{user_id}", response_model=UserResponse, tags=["admin"])
+@user_limiter.limit("10/minute")
 async def patch_user(
+    request: Request,
     user_id: int,
     patch_data: UserPatch,
     service: UserService = Depends(get_user_service),
@@ -128,7 +163,9 @@ async def patch_user(
         raise HTTPException(status_code=400, detail=str(e))
 
 @router.delete("/users/{user_id}", tags=["admin"])
+@user_limiter.limit("10/minute")
 async def delete_user(
+    request: Request,
     user_id: int,
     service: UserService = Depends(get_user_service),
     current_user: User = Depends(get_current_admin_user)
