@@ -26,11 +26,11 @@ async def seed_roles():
 
         roles_data = [
             {"name": "admin", "ghibli_endpoint": ""},
-            {"name": "films", "ghibli_endpoint": "/films"},
-            {"name": "people", "ghibli_endpoint": "/people"},
-            {"name": "locations", "ghibli_endpoint": "/locations"},
-            {"name": "species", "ghibli_endpoint": "/species"},
-            {"name": "vehicles", "ghibli_endpoint": "/vehicles"},
+            {"name": "films", "ghibli_endpoint": "https://ghibliapi.vercel.app/films"},
+            {"name": "people", "ghibli_endpoint": "https://ghibliapi.vercel.app/people"},
+            {"name": "locations", "ghibli_endpoint": "https://ghibliapi.vercel.app/locations"},
+            {"name": "species", "ghibli_endpoint": "https://ghibliapi.vercel.app/species"},
+            {"name": "vehicles", "ghibli_endpoint": "https://ghibliapi.vercel.app/vehicles"},
         ]
 
         for role_data in roles_data:
