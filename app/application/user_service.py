@@ -55,10 +55,13 @@ class UserService:
             for user in users
         ]
 
-    async def update_user(self, user_id: int, user_data: UserUpdate) -> Optional[UserResponse]:
+    async def update_user(self, user_id: int, user_data: UserUpdate, current_user: Optional[User] = None) -> Optional[UserResponse]:
         user = await self.user_repo.get(user_id)
         if not user:
             return None
+
+        if current_user and current_user.role.name == "admin" and user.id == current_user.id:
+            raise ValueError("An admin user cannot update their own account")
 
         role = user.role
         if user_data.role_name:
@@ -84,10 +87,13 @@ class UserService:
             role_name=updated.role.name
         )
 
-    async def patch_user(self, user_id: int, patch_data: UserPatch) -> Optional[UserResponse]:
+    async def patch_user(self, user_id: int, patch_data: UserPatch, current_user: Optional[User] = None) -> Optional[UserResponse]:
         user = await self.user_repo.get(user_id)
         if not user:
             return None
+
+        if current_user and current_user.role.name == "admin" and user.id == current_user.id:
+            raise ValueError("An admin user cannot update their own account")
 
         name = patch_data.name if patch_data.name is not None else user.name
         email = patch_data.email if patch_data.email is not None else user.email
