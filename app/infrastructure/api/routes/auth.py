@@ -19,7 +19,6 @@ def get_auth_service(session: AsyncSession = Depends(get_db)):
 
 
 @router.post("/auth/login", response_model=TokenResponse, tags=["public"])
+@auth_limiter.limit("5/minute")
 async def login(request: Request, form_data: OAuth2PasswordRequestForm = Depends(), auth_service: AuthService = Depends(get_auth_service)):
-    key = f"{get_remote_address(request)}:{form_data.username}"
-    with auth_limiter.limit("5/minute", key=key):
-        return await auth_service.authenticate_user(form_data)
+    return await auth_service.authenticate_user(form_data)
