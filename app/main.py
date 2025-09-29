@@ -3,6 +3,7 @@ from fastapi import FastAPI
 from app.infrastructure.api.routes.users import router as users_router
 from app.infrastructure.api.routes.roles import router as roles_router
 from app.infrastructure.api.routes.auth import router as auth_router
+from app.infrastructure.api.routes.ghibli import router as ghibli_router
 from app.infrastructure.database.init_db import init_db
 
 @asynccontextmanager
@@ -22,6 +23,7 @@ app = FastAPI(
 app.include_router(auth_router)
 app.include_router(users_router)
 app.include_router(roles_router)
+app.include_router(ghibli_router)
 
 @app.get("/")
 def read_root():
