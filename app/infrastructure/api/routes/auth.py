@@ -10,7 +10,7 @@ from app.domain.schemas.auth import TokenResponse
 
 router = APIRouter()
 
-auth_limiter = Limiter()
+auth_limiter = Limiter(key_func=get_remote_address)
 
 
 def get_auth_service(session: AsyncSession = Depends(get_db)):
