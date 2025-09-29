@@ -25,7 +25,7 @@ async def create_user(
     if current_user and current_user.role.name != "admin":
         raise HTTPException(status_code=403, detail="Authenticated users cannot register new accounts. Please logout first.")
     try:
-        return await service.create_user(user_data, current_user)
+        return await service.create_user(user_data)
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
 
