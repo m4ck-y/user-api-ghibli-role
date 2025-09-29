@@ -6,6 +6,9 @@ class Settings(BaseSettings):
     admin_name: str = "Admin User"
     admin_email: str = "admin@ghibli.com"
     admin_password: str = "admin123"
+    secret_key: str = "secret"
+    algorithm: str = "HS256"
+    access_token_expire_minutes: int = 30
 
     class Config:
         env_file = ".env"
