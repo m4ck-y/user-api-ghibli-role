@@ -24,10 +24,8 @@ limiter = Limiter(key_func=get_remote_address)
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    # Startup
     await init_db()
     yield
-    # Shutdown
 
 app = FastAPI(
     title="API de Usuarios con Roles de Ghibli",

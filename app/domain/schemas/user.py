@@ -7,7 +7,7 @@ class UserCreate(BaseModel):
     name: str = Field(..., examples=["María García"])
     email: EmailStr = Field(..., examples=["maria.garcia@gmail.com"])
     password: str = Field(..., examples=["securepassword123"])
-    role_name: RoleType = Field(..., examples=["admin"])
+    role_name: RoleType = Field(..., examples=["species"])
 
 
 class UserUpdate(BaseModel):
@@ -30,5 +30,5 @@ class UserResponse(BaseModel):
     id: int = Field(..., examples=[1])
     name: str = Field(..., examples=["María García"])
     email: EmailStr = Field(..., examples=["maria.garcia@gmail.com"])
-    role_name: RoleType = Field(..., examples=["admin"])
+    role_name: RoleType = Field(..., examples=["locations"])
 
