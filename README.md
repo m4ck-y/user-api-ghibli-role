@@ -97,42 +97,32 @@ Para controlar la frecuencia de solicitudes y prevenir abusos, se aplican los si
 
 **[Neon](https://neon.com/)** como proveedor de base de datos en la nube, aprovechando su capa gratuita para bases de datos PostgreSQL. A continuación, se muestran varias capturas de pantalla del proceso de implementación y uso de la API en Google Cloud Platform (GCP) y la integración con la API de Studio Ghibli.
 
-1. **URL de conexión proporcionada por Neon**:  
-   Esta es la URL de conexión a la base de datos PostgreSQL proporcionada por la plataforma **Neon**, que se utilizará para conectar la API a la base de datos.  
+1. Esta es la URL de conexión a la base de datos PostgreSQL proporcionada por la plataforma **Neon**, que se utilizará para conectar la API a la base de datos.  
    ![Neon URL de Conexión](https://storage.googleapis.com/user-api-ghibli/neon_url_connection.png)
 
-2. **Configuración de GCP Run con GitHub**:  
-   Configuración de **GCP Run** para vincular el repositorio de **GitHub**, donde se aloja el código del proyecto. Este paso es necesario para implementar el servicio en la nube.  
+2. Configuración de **GCP Run** para vincular el repositorio de **GitHub**, donde se aloja el código del proyecto. Este paso es necesario para implementar el servicio en la nube.  
    ![GCP Run con GitHub](https://storage.googleapis.com/user-api-ghibli/gcp_run_repo.png)
 
-3. **Configuración de GCP Run, seleccionando la rama y la dirección del Dockerfile**:  
-   En esta captura se muestra cómo seleccionar la rama y la ubicación del **Dockerfile** que se usará para construir la imagen del contenedor en **Google Cloud Run**.  
+
    ![Configuración de GCP Run](https://storage.googleapis.com/user-api-ghibli/gcp_dockerfile.png)
 
-4. **Permitir acceso público al servicio en GCP Run**:  
-   Esta captura muestra la configuración de acceso público en **GCP Run**, lo que permite que el servicio sea accesible desde cualquier lugar a través de una URL pública.  
+3. Configuración de acceso público en **GCP Run**, lo que permite que el servicio sea accesible desde cualquier lugar a través de una URL pública.  
    ![Acceso Público en GCP Run](https://storage.googleapis.com/user-api-ghibli/gcp_public_access.png)
 
-5. **Configuración de contenedor, puerto y variables de entorno en GCP Run**:  
-   Aquí se configura el contenedor en **GCP Run**, donde se establece el puerto de escucha y las variables de entorno necesarias, como la URL de conexión a PostgreSQL que se obtuvo de **Neon**.  
+5. Configuración de contenedor, puerto y variables de entorno en GCP Run, URL de conexión a PostgreSQL que se obtuvo de **Neon**.  
    ![Configuración de Contenedor en GCP Run](https://storage.googleapis.com/user-api-ghibli/gcp_port.png)
 
-6. **Servicio corriendo correctamente en GCP Run, mostrando la documentación con FastAPI y Swagger**:  
-   En esta captura se muestra el servicio corriendo exitosamente en **GCP Run**. Se puede acceder a la documentación interactiva generada automáticamente por **FastAPI** y **Swagger UI**.  
+6. Servicio corriendo correctamente en GCP Run, mostrando la documentación con FastAPI y Swagger.  
    ![Swagger UI en GCP Run](https://storage.googleapis.com/user-api-ghibli/gcp_swagger.png)
 
-7. **Login desde la documentación de Swagger**:  
-   Esta captura muestra el proceso de inicio de sesión desde la interfaz de Swagger. Un usuario normal, con el rol de **species**, puede iniciar sesión y utilizar los endpoints según su rol.  
+7. Esta captura muestra el proceso de inicio de sesión desde la interfaz de Swagger. Un usuario normal, con el rol de **species**, puede iniciar sesión y utilizar los endpoints según su rol.  
    ![Login con Usuario Normal](https://storage.googleapis.com/user-api-ghibli/gcp_login_normal.png)
 
-8. **Usuario normal intentando eliminar usuarios**:  
-   En esta captura se observa a un usuario normal intentando eliminar a otro usuario. El servicio está correctamente validado para que solo los administradores puedan realizar esta acción.  
+8.   En esta captura se observa a un usuario normal intentando eliminar a otro usuario. El servicio está correctamente validado para que solo los administradores puedan realizar esta acción.  
    ![Usuario Normal Intentando Eliminar](https://storage.googleapis.com/user-api-ghibli/gcp_login_normal_delete.png)
 
-9. **Usuario con rol 'species' consumiendo su servicio y listando recursos de Ghibli**:  
-   Aquí se muestra cómo un usuario con el rol **species** consume el servicio y lista todos los recursos correspondientes de Ghibli. Los recursos se obtienen desde el endpoint `ghibli-api/resources/` según el rol asignado.  
+9. Aquí se muestra cómo un usuario con el rol **species** consume el servicio y lista todos los recursos correspondientes de Ghibli. Los recursos se obtienen desde el endpoint `ghibli-api/resources/` según el rol asignado.  
    ![Listando Recursos Ghibli](https://storage.googleapis.com/user-api-ghibli/gcp_login_normal_ghibli_all.png)
 
-10. **Usuario con rol 'species' obteniendo un recurso específico de Ghibli**:  
-   Esta captura muestra cómo un usuario con el rol **species** obtiene un recurso específico de Ghibli usando el endpoint `ghibli-api/resources/{resource_id}`. Este endpoint devuelve un único recurso según el ID proporcionado.  
+10. Esta captura muestra cómo un usuario con el rol **species** obtiene un recurso específico de Ghibli usando el endpoint `ghibli-api/resources/{resource_id}`. Este endpoint devuelve un único recurso según el ID proporcionado.  
    ![Obteniendo un Recurso Ghibli](https://storage.googleapis.com/user-api-ghibli/gcp_login_normal_ghibli.png)
